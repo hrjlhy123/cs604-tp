@@ -3,7 +3,7 @@ const ngrok = require('ngrok');
 (async function() {
   try {
     const url = await ngrok.connect({
-      addr: 3000,
+      addr: 3001,
       proto: 'http', // http|tcp|tls
     });
     console.log('Public URL:', url);

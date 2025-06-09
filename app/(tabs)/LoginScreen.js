@@ -10,48 +10,65 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("https://b4c3705d7215.ngrok.app/login", {
+      const res = await axios.post("http://localhost:3001/login", {
         username,
         password,
         otp,
       });
+
       Toast.show({
         type: "success",
-        text1: "Success",
+        text1: "🎉 Login Successful",
         text2: res.data.message,
+        position: "top",
+        visibilityTime: 5000,
       });
+      alert(`Login Successful!`);
     } catch (err) {
       Toast.show({
         type: "error",
         text1: "Login Failed",
         text2: err.response?.data?.message || "Something went wrong",
+        position: "top",
+        visibilityTime: 5000,
       });
+      alert(`Login failed!`);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text>Username</Text>
+      <Text style={styles.title}>Login</Text>
+
+      <Text style={styles.label}>Username</Text>
       <TextInput
         style={styles.input}
         onChangeText={setUsername}
+        placeholder="Enter username"
         value={username}
       />
-      <Text>Password</Text>
+
+      <Text style={styles.label}>Password</Text>
       <TextInput
         secureTextEntry
         style={styles.input}
         onChangeText={setPassword}
+        placeholder="Enter password"
         value={password}
       />
-      <Text>PIN</Text>
+
+      <Text style={styles.label}>PIN</Text>
       <TextInput
         keyboardType="numeric"
         style={styles.input}
         onChangeText={setOtp}
+        placeholder="Enter PIN"
         value={otp}
       />
-      <Button title="Login" onPress={handleLogin} />
+
+      <View style={styles.buttonWrapper}>
+        <Button title="Login" onPress={handleLogin} />
+      </View>
     </View>
   );
 }
@@ -59,12 +76,31 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 30,
     justifyContent: "center",
   },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 30,
+    textAlign: "center",
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 4,
+    marginTop: 12,
+  },
   input: {
+    backgroundColor: "#fff",
+    borderColor: "#ccc",
     borderWidth: 1,
-    padding: 10,
-    marginBottom: 10,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+  },
+
+  buttonWrapper: {
+    marginTop: 30,
   },
 });
