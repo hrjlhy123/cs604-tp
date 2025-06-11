@@ -4,38 +4,55 @@ const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
 const { authenticator } = require("otplib");
 const qrcode = require("qrcode");
+const { MongoClient } = require("mongodb");
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const users = [];
+// MongoDB setup
+const uri = "mongodb://hrjlhy:19940823@34.212.130.14:27017/UserAuth?authSource=admin";
+const client = new MongoClient(uri);
+let usersCollection;
 
+client.connect().then(() => {
+  const db = client.db("UserAuth");
+  usersCollection = db.collection("users");
+  console.log("✅ Connected to MongoDB");
+}).catch(console.error);
+
+// Registration route
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
 
-  if (users.find((u) => u.username === username)) {
+  const existingUser = await usersCollection.findOne({ username });
+  if (existingUser) {
     return res.status(400).json({ message: "Username already exists" });
   }
 
   const hashedPassword = bcrypt.hashSync(password, 10);
-  const secret = authenticator.generateSecret(); // 为每个用户生成一个 secret
-
+  const secret = authenticator.generateSecret();
   const otpauth = authenticator.keyuri(username, "MFA-Demo", secret);
-  const qrCodeDataURL = await qrcode.toDataURL(otpauth); // 生成二维码图像URL
+  const qrCodeDataURL = await qrcode.toDataURL(otpauth);
 
-  users.push({ username, password: hashedPassword, secret });
+  await usersCollection.insertOne({
+    username,
+    password: hashedPassword,
+    secret,
+  });
 
   res.json({ message: "Scan this QR code", qr: qrCodeDataURL });
 });
 
-app.post("/login", (req, res) => {
+// Login route
+app.post("/login", async (req, res) => {
   const { username, password, otp } = req.body;
-  const user = users.find((u) => u.username === username);
+
+  const user = await usersCollection.findOne({ username });
   if (!user) return res.status(401).json({ message: "User not found" });
 
   const validPassword = bcrypt.compareSync(password, user.password);
-  const validOTP = authenticator.check(otp, user.secret); // 验证动态6位密码
+  const validOTP = authenticator.check(otp, user.secret);
 
   if (!validPassword || !validOTP) {
     return res.status(401).json({ message: "Invalid credentials or OTP" });
@@ -44,4 +61,4 @@ app.post("/login", (req, res) => {
   res.json({ message: "Login successful with MFA" });
 });
 
-app.listen(3001, () => console.log("Server running on http://localhost:3001"));
+app.listen(3001, () => console.log("🚀 Server running on http://localhost:3001"));
