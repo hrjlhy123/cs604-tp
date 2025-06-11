@@ -1,3 +1,5 @@
+const fs = require("fs");
+const https = require("https");
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
@@ -61,4 +63,12 @@ app.post("/login", async (req, res) => {
   res.json({ message: "Login successful with MFA" });
 });
 
-app.listen(3001, () => console.log("🚀 Server running on http://localhost:3001"));
+// HTTPS setup
+const options = {
+  key: fs.readFileSync("../ssl/key.pem"),
+  cert: fs.readFileSync("../ssl/cert.pem"),
+};
+
+https.createServer(options, app).listen(3001, () => {
+  console.log("🚀 HTTPS Server running at https://localhost:3001");
+});
