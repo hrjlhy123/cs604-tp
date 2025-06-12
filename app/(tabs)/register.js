@@ -20,7 +20,7 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     try {
       const res = await axios.post(
-        "https://localhost:3001/register",
+        "https://34.212.130.14:3001/register",
         {
           username,
           password,

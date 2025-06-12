@@ -20,7 +20,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("https://localhost:3001/login", {
+      const res = await axios.post("https://34.212.130.14:3001/login", {
         username,
         password,
         otp,

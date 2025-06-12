@@ -62,7 +62,7 @@ export default function HomeScreen() {
     if (Platform.OS === "web") {
       localStorage.removeItem("token");
       localStorage.removeItem("username");
-      window.location.href = "http://localhost:8081/";
+      window.location.href = "http://34.212.130.14:8081/";
     } else {
       SecureStore.deleteItemAsync("token");
       SecureStore.deleteItemAsync("username");
@@ -72,7 +72,7 @@ export default function HomeScreen() {
 
   const handleChangePassword = async () => {
     try {
-      const res = await fetch("https://localhost:3001/change-password", {
+      const res = await fetch("https://34.212.130.14:3001/change-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -184,7 +184,7 @@ export default function HomeScreen() {
                   onPress={async () => {
                     try {
                       const res = await fetch(
-                        "https://localhost:3001/delete-user",
+                        "https://34.212.130.14:3001/delete-user",
                         {
                           method: "POST",
                           headers: {
@@ -205,7 +205,7 @@ export default function HomeScreen() {
                         if (Platform.OS === "web") {
                           localStorage.removeItem("token");
                           localStorage.removeItem("username");
-                          window.location.href = "http://localhost:8081/";
+                          window.location.href = "http://34.212.130.14:8081/";
                         } else {
                           await SecureStore.deleteItemAsync("token");
                           await SecureStore.deleteItemAsync("username");
