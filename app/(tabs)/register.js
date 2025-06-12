@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useState } from "react";
 import {
-  Button,
   Image,
+  Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -18,10 +19,16 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     try {
-      const res = await axios.post("https://localhost:3001/register", {
-        username,
-        password,
-      });
+      const res = await axios.post(
+        "https://localhost:3001/register",
+        {
+          username,
+          password,
+        },
+        {
+          withCredentials: false,
+        }
+      );
 
       setQrCodeUrl(res.data.qr);
       Toast.show({
@@ -60,13 +67,21 @@ export default function RegisterScreen() {
       />
 
       <View style={styles.buttonWrapper}>
-        <Button title="Register" onPress={handleRegister} />
+        <Pressable style={styles.customButton} onPress={handleRegister}>
+          <Text style={styles.buttonText}>Register</Text>
+        </Pressable>
       </View>
 
       {qrCodeUrl && (
         <View style={styles.qrContainer}>
           <Text style={styles.qrText}>Scan this QR Code:</Text>
           <Image source={{ uri: qrCodeUrl }} style={styles.qrImage} />
+          {Platform.OS !== "web" && (
+            <Text style={styles.hintText}>
+              On mobile, please screenshot this and scan it using your
+              Authenticator App.
+            </Text>
+          )}
         </View>
       )}
     </ScrollView>
@@ -101,6 +116,18 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     marginTop: 30,
+    alignItems: "center",
+  },
+  customButton: {
+    backgroundColor: "#007BFF",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   qrContainer: {
     alignItems: "center",
@@ -114,5 +141,11 @@ const styles = StyleSheet.create({
     width: 250,
     height: 250,
     borderRadius: 12,
+  },
+  hintText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
   },
 });

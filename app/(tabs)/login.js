@@ -1,12 +1,22 @@
 import axios from "axios";
+import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import Toast from "react-native-toast-message";
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
+  const router = useRouter();
 
   const handleLogin = async () => {
     try {
@@ -16,14 +26,25 @@ export default function LoginScreen() {
         otp,
       });
 
+      const { token, message } = res.data;
+
+      if (Platform.OS === "web") {
+        localStorage.setItem("token", token);
+        localStorage.setItem("username", username);
+      } else {
+        await SecureStore.setItemAsync("token", token);
+        await SecureStore.setItemAsync("username", username);
+      }
+
       Toast.show({
         type: "success",
         text1: "🎉 Login Successful",
-        text2: res.data.message,
+        text2: message,
         position: "top",
         visibilityTime: 5000,
       });
-      alert(`Login Successful!`);
+
+      router.replace("../home");
     } catch (err) {
       Toast.show({
         type: "error",
@@ -32,7 +53,6 @@ export default function LoginScreen() {
         position: "top",
         visibilityTime: 5000,
       });
-      alert(`Login failed!`);
     }
   };
 
@@ -62,12 +82,14 @@ export default function LoginScreen() {
         keyboardType="numeric"
         style={styles.input}
         onChangeText={setOtp}
-        placeholder="Enter PIN"
+        placeholder="Enter 6-digit code"
         value={otp}
       />
 
       <View style={styles.buttonWrapper}>
-        <Button title="Login" onPress={handleLogin} />
+        <Pressable style={styles.customButton} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Login</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -99,8 +121,19 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 16,
   },
-
   buttonWrapper: {
     marginTop: 30,
+    alignItems: "center",
+  },
+  customButton: {
+    backgroundColor: "#007BFF",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });

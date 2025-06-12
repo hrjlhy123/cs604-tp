@@ -7,23 +7,44 @@ const bodyParser = require("body-parser");
 const { authenticator } = require("otplib");
 const qrcode = require("qrcode");
 const { MongoClient } = require("mongodb");
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET = "your_super_secret_key"; 
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB setup
-const uri = "mongodb://hrjlhy:19940823@34.212.130.14:27017/UserAuth?authSource=admin";
+const uri =
+  "mongodb://hrjlhy:19940823@34.212.130.14:27017/UserAuth?authSource=admin";
 const client = new MongoClient(uri);
 let usersCollection;
 
-client.connect().then(() => {
-  const db = client.db("UserAuth");
-  usersCollection = db.collection("users");
-  console.log("✅ Connected to MongoDB");
-}).catch(console.error);
+client
+  .connect()
+  .then(() => {
+    const db = client.db("UserAuth");
+    usersCollection = db.collection("users");
+    console.log("✅ Connected to MongoDB");
+  })
+  .catch(console.error);
 
-// Registration route
+// Middleware: JWT Token Verification
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader?.split(" ")[1];
+
+  if (!token) return res.status(401).json({ message: "Missing token" });
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: "Invalid token" });
+    req.user = user; // ✅ Inject username from token
+    next();
+  });
+}
+
+// Registration
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
 
@@ -46,7 +67,7 @@ app.post("/register", async (req, res) => {
   res.json({ message: "Scan this QR code", qr: qrCodeDataURL });
 });
 
-// Login route
+// Login + Token
 app.post("/login", async (req, res) => {
   const { username, password, otp } = req.body;
 
@@ -60,13 +81,50 @@ app.post("/login", async (req, res) => {
     return res.status(401).json({ message: "Invalid credentials or OTP" });
   }
 
-  res.json({ message: "Login successful with MFA" });
+  // ✅ Generate JWT token
+  const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: "1h" });
+
+  res.json({ message: "Login successful with MFA", token });
 });
 
-// HTTPS setup
+// Change password (auth required)
+app.post("/change-password", authenticateToken, async (req, res) => {
+  const { newPassword } = req.body;
+  const username = req.user.username;
+
+  if (!newPassword) {
+    return res.status(400).json({ message: "Missing new password" });
+  }
+
+  const user = await usersCollection.findOne({ username });
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const newHashedPassword = bcrypt.hashSync(newPassword, 10);
+  await usersCollection.updateOne(
+    { username },
+    { $set: { password: newHashedPassword } }
+  );
+
+  res.json({ message: "Password updated successfully" });
+});
+
+// Delete user (auth required)
+app.post("/delete-user", authenticateToken, async (req, res) => {
+  const username = req.user.username;
+
+  const result = await usersCollection.deleteOne({ username });
+
+  if (result.deletedCount === 1) {
+    return res.json({ message: "User deleted successfully" });
+  } else {
+    return res.status(404).json({ message: "User not found" });
+  }
+});
+
+// HTTPS server
 const options = {
-  key: fs.readFileSync("../ssl/key.pem"),
-  cert: fs.readFileSync("../ssl/cert.pem"),
+  key: fs.readFileSync("../ssl/localhost+1-key.pem"),
+  cert: fs.readFileSync("../ssl/localhost+1.pem"),
 };
 
 https.createServer(options, app).listen(3001, () => {
