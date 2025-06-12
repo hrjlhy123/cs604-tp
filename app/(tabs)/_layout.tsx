@@ -39,7 +39,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="../index"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
@@ -48,7 +48,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="login"
+        name="../login"
         options={{
           title: "Login",
           tabBarIcon: ({ color, size = 28 }) => (
@@ -57,7 +57,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="register"
+        name="../register"
         options={{
           title: "Register",
           tabBarIcon: ({ color, size = 28 }) => (
