@@ -20,7 +20,7 @@ export default function RegisterScreen() {
   const handleRegister = async () => {
     try {
       const res = await axios.post(
-        "https://hrjlhy.com/api/register",
+        "https://www.hrjlhy.com/api/register",
         {
           username,
           password,
