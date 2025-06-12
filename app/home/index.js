@@ -62,7 +62,7 @@ export default function HomeScreen() {
     if (Platform.OS === "web") {
       localStorage.removeItem("token");
       localStorage.removeItem("username");
-      window.location.href = "http://hrjlhy.com/";
+      window.location.href = "http://hrjlhy.com/MFA/";
     } else {
       SecureStore.deleteItemAsync("token");
       SecureStore.deleteItemAsync("username");
@@ -205,7 +205,7 @@ export default function HomeScreen() {
                         if (Platform.OS === "web") {
                           localStorage.removeItem("token");
                           localStorage.removeItem("username");
-                          window.location.href = "http://hrjlhy.com/";
+                          window.location.href = "http://hrjlhy.com/MFA/";
                         } else {
                           await SecureStore.deleteItemAsync("token");
                           await SecureStore.deleteItemAsync("username");
