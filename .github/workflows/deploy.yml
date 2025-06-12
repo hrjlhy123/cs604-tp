@@ -1,0 +1,32 @@
+name: Deploy MFA Project
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to remote server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ~/cs604-tp || exit 1
+
+            git pull origin main
+
+            npx expo export --platform web --output-dir web-build
+
+            tmux send-keys -t MFA C-c
+            tmux send-keys -t MFA "cd ~/cs604-tp/server && node server.js" Enter
+          EOF
