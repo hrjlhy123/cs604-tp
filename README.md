@@ -1,50 +1,87 @@
-# Welcome to your Expo app 👋
+# 🔐 MFA Auth App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A cross-platform authentication app with built-in Multi-Factor Authentication (MFA) using TOTP (Time-Based One-Time Passwords), built with React Native and Express.js.
 
-## Get started
+## 🚀 Features
 
-1. Install dependencies
+- ✅ **Register with username & password**
+- 🔐 **Scan QR Code with Microsoft/Google Authenticator**
+- 🔒 **Login using MFA (OTP + Password)**
+- 🧑‍💼 **Dashboard with:**
+  - Change Password
+  - Delete Account
+  - Logout
+- 📱 **Responsive UI for iOS, Android & Web**
+- 📦 Secure token storage using `SecureStore` (native) or `localStorage` (web)
 
-   ```bash
-   npm install
-   ```
+## 🛠 Tech Stack
 
-2. Start the app
+### Frontend
+- React Native (Expo)
+- Expo Router
+- Toast Notifications
+- SecureStore (Expo)
+- React Native Vector Icons
 
-   ```bash
-   npx expo start
-   ```
+### Backend
+- Express.js
+- MongoDB
+- bcrypt for password hashing
+- otplib for TOTP
+- QRCode generation
 
-In the output, you'll find options to open the app in a
+## 📸 Screens
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Register → Scan QR
+- Login → Enter password + OTP
+- Dashboard → Manage your account
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🧪 Usage
 
-## Get a fresh project
-
-When you're ready, run:
+### 1. Start Backend
 
 ```bash
-npm run reset-project
+cd server
+npm install
+node server.js
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Start Frontend
 
-## Learn more
+```bash
+npx expo start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+> ⚠️ Make sure MongoDB is running and the backend server URL is correctly set in your frontend code (switch between `http` and `https` as needed).
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 📂 Folder Structure
 
-## Join the community
+```
+/server
+  └── server.js, routes, DB setup, auth logic
+/frontend
+  ├── app/(tabs)/login.tsx
+  ├── app/(tabs)/register.tsx
+  ├── app/(tabs)/dashboard.tsx
+  └── components/, constants/, hooks/
+```
 
-Join our community of developers creating universal apps.
+## 🔐 Security Notes
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- All credentials are securely hashed.
+- OTP secrets are generated per user.
+- JWT is used for session management.
+
+## ✨ Future Ideas
+
+- Email verification
+- Password reset via email
+- Fingerprint / FaceID integration
+
+## 📄 License
+
+MIT License
+
+---
+
+Built with ❤️ by Jack Hao
